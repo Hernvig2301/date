@@ -65,7 +65,9 @@
             border-radius: 15px;
             box-shadow: 0 4px 25px rgba(0,0,0,0.1);
             animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-            max-width: 400px;
+            width: 90%;
+            max-width: 420px;
+            box-sizing: border-box;
         }
 
         /* Styling til dato og tid */
@@ -104,6 +106,56 @@
             transform: scale(1.05);
         }
 
+        /* Mad-grid styling */
+        .food-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .food-box {
+            background-color: #fff4f7;
+            border: 2px solid #f8bbd0;
+            border-radius: 12px;
+            padding: 15px 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #d81b60;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .food-box:hover {
+            background-color: #d81b60;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(216, 27, 96, 0.2);
+        }
+
+        .food-box span {
+            font-size: 1.8rem;
+        }
+
+        /* Gør "Mad lavet af Hernvig" lidt mere speciel */
+        .food-box.special {
+            grid-column: span 2;
+            background-color: #e8f5e9;
+            border-color: #81c784;
+            color: #2e7d32;
+        }
+
+        .food-box.special:hover {
+            background-color: #2e7d32;
+            color: white;
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+        }
+
         @keyframes popIn {
             0% { transform: scale(0.8); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
@@ -129,16 +181,31 @@
                 <label for="datePicker">Hvilken dag skal jeg slå dig i shuffleboard? 🗓️</label>
                 <input type="date" id="datePicker">
                 
-                <label for="timePicker">Hvad tid skal jeg glæde mij til?:</label>
+                <label for="timePicker">Hvad tid skal jeg glæde mig til?:</label>
                 <input type="time" id="timePicker" value="18:30">
             </div>
             
-            <button id="btnConfirm" onclick="confirmDate()">Gør det officielt! 😘</button>
+            <button id="btnConfirm" onclick="goToFood()">Videre til menuen ➡️</button>
+        </div>
+
+        <div id="foodSection" style="display: none;">
+            <h2>Hvad er vi i humør til? 🍽️🤤</h2>
+            <p>Du bestemmer menuen (jeg betaler taber-bøden 😉):</p>
+            
+            <div class="food-grid">
+                <div class="food-box" onclick="confirmAll('Sushi 🍣')"><span>🍣</span>Sushi</div>
+                <div class="food-box" onclick="confirmAll('Pizza 🍕')"><span>🍕</span>Pizza</div>
+                <div class="food-box" onclick="confirmAll('Burger 🍔')"><span>🍔</span>Burger</div>
+                <div class="food-box" onclick="confirmAll('Pasta 🍝')"><span>🍝</span>Pasta</div>
+                <div class="food-box" onclick="confirmAll('Mexi 🌮')"><span>🌮</span>Mexi</div>
+                <div class="food-box special" onclick="confirmAll('Hjemmelavet mad af Hernvig 👨‍🍳✨')"><span>👨‍🍳</span>Mad lavet af mig (Hernvig) ✨</div>
+            </div>
         </div>
 
         <div id="finalSection" style="display: none;">
             <h2>🥳💕 SÅDAN DER!</h2>
             <p>Jeg har sat et kæmpe kryds i kalenderen <strong id="displayDate"></strong> kl. <strong id="displayTime"></strong>.</p>
+            <p>Menuen står på: <strong id="displayFood" style="color: #d81b60;"></strong></p>
             <p>Tag lige et lynhurtigt screenshot af dette og send det til mig, så jeg kan få booket banen! 📸 (Det er bindende nu, ikk'? 😉)</p>
             <p>Jeg glæder mig til at slå dig i shuffleboard 🥌</p>
         </div>
@@ -146,6 +213,8 @@
 
     <script>
         const btnNo = document.getElementById('btnNo');
+        let savedDate = "";
+        let savedTime = "";
         
         function moveButton() {
             const x = Math.random() * (window.innerWidth - btnNo.offsetWidth - 20);
@@ -165,7 +234,7 @@
             document.getElementById('successMessage').style.display = 'block';
         }
 
-        function confirmDate() {
+        function goToFood() {
             const dateVal = document.getElementById('datePicker').value;
             const timeVal = document.getElementById('timePicker').value;
 
@@ -175,11 +244,27 @@
             }
 
             const dateObj = new Date(dateVal);
-            const formattedDate = `${dateObj.getDate()}/${dateObj.getMonth() + 1}`;
+            savedDate = `${dateObj.getDate()}/${dateObj.getMonth() + 1}`;
+            savedTime = timeVal;
 
+            // Skift til mad-skærmen
             document.getElementById('pickerSection').style.display = 'none';
-            document.getElementById('displayDate').innerText = formattedDate;
-            document.getElementById('displayTime').innerText = timeVal;
+            document.getElementById('foodSection').style.display = 'block';
+        }
+
+        function confirmAll(foodChoice) {
+            // Indsæt værdierne på den sidste skærm
+            document.getElementById('displayDate').innerText = savedDate;
+            document.getElementById('displayTime').innerText = savedTime;
+            document.getElementById('displayFood').innerText = foodChoice;
+
+            // Hvis hun vælger din mad, så gør teksten grøn på den sidste skærm også
+            if(foodChoice.includes("Hernvig")) {
+                document.getElementById('displayFood').style.color = "#2e7d32";
+            }
+
+            // Skift til den endelige skærm
+            document.getElementById('foodSection').style.display = 'none';
             document.getElementById('finalSection').style.display = 'block';
         }
     </script>
